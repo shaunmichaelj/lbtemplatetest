@@ -2,13 +2,22 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "loadbalancer": {
-            "type": "string",
-            "defaultValue": "ecloadbalancer"
-        },
-        "privateIp": {
-            "type": "string"
-                }
+    "Loadbalancer": {
+      "type": "string"
+    },
+    "subnetRef": {
+      "type": "string"
+    },
+    "privateIp": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    }
+
  
         
     },
@@ -16,15 +25,15 @@
     "variables": {
         "vnetname": "virtualnet",
         "vnetResourceGroup": "AzureResourceGroup3",
-        "vnetID": "[resourceId(variables('vnetResourceGroup'), 'microsoft.network/virtualNetworks', variables('vnetname'))]",
-        "subnetRef": "[concat(variables('vnetID'),'/subnets/', 'subnet1')]"
+        "vnetID": "[resourceId(variables('vnetResourceGroup'), 'microsoft.network/virtualNetworks', variables('vnetname'))]"
+
     },
     "resources": [
                 {
             "name": "[parameters('loadbalancer')]",
             "type": "Microsoft.Network/loadBalancers",
             "apiVersion": "2019-11-01",
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "frontendIPConfigurations": [
                     {
@@ -33,7 +42,7 @@
                             "privateIPAllocationMethod": "static",
                             "privateIPAddress": "[parameters('privateIp')]",
                             "subnet": {
-                                "id": "[variables('subnetRef')]"
+                                "id": "[parameters('subnetRef')]"
                             }
                         }
                     }

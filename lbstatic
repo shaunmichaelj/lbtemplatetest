@@ -4,7 +4,7 @@
     "parameters": {
         "loadbalancer": {
             "type": "string",
-            "defaultValue": "loadbalancer"
+            "defaultValue": "ecloadbalancer"
         },
         "privateIp": {
             "type": "string"

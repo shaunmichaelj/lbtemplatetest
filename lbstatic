@@ -1,0 +1,82 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "loadbalancer": {
+            "type": "string"
+        },
+        "privateIp": {
+            "type": "string"
+                }
+ 
+        
+    },
+    "functions": [],
+    "variables": {
+        "vnetname": "virtualnet",
+        "vnetResourceGroup": "AzureResourceGroup3",
+        "vnetID": "[resourceId(variables('vnetResourceGroup'), 'microsoft.network/virtualNetworks', variables('vnetname'))]",
+        "subnetRef": "[concat(variables('vnetID'),'/subnets/', 'subnet1')]"
+    },
+    "resources": [
+                {
+            "name": "[parameters('loadbalancer')]",
+            "type": "Microsoft.Network/loadBalancers",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "frontendIPConfigurations": [
+                    {
+                        "name": "loadBalancerFrontEnd1",
+                        "properties": {
+                            "privateIPAllocationMethod": "static",
+                            "privateIPAddress": "[parameters('privateIp')]",
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            }
+                        }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "loadBalancerBackEndPool1"
+                    }
+                ],
+                "loadBalancingRules": [
+                    {
+                        "name": "LBRule1",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', parameters('loadbalancer'), 'loadBalancerFrontEnd1')]"
+                            },
+                            "backendAddressPool": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', parameters('loadbalancer'), 'loadBalancerBackEndPool1')]"
+                            },
+                            "protocol": "Tcp",
+                            "frontendPort": 80,
+                            "backendPort": 80,
+                            "enableFloatingIP": false,
+                            "idleTimeoutInMinutes": 5,
+                            "probe": {
+                                "id": "[resourceId('Microsoft.Network/loadBalancers/probes', parameters('loadbalancer'), 'tcpProbe1')]"
+                            }
+                        }
+                    }
+                ],
+                "probes": [
+                    {
+                        "name": "tcpProbe1",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": 80,
+                            "intervalInSeconds": 5,
+                            "numberOfProbes": 2
+                        }
+                    }
+                ]
+            }
+        }
+            
+    ],
+    "outputs": {}
+}
